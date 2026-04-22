@@ -1,0 +1,168 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# DISCOVTRIP — Configuration Apache / Hostinger Business
+# Activer HTTPS en production en décommentant le bloc Rewrite HTTPS ci-dessous.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ── HTTPS forcé (décommenter en production) ───────────────────────────────
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # ── www → sans www (choisir l'une ou l'autre, pas les deux) ──────────────
+    # Option A : www.discovtrip.com → discovtrip.com
+    # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    # RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+    # Option B : discovtrip.com → www.discovtrip.com
+    # RewriteCond %{HTTP_HOST} !^www\. [NC]
+    # RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # ── Vite HMR dev (ne pas toucher) ─────────────────────────────────────────
+    RewriteCond %{REQUEST_URI} ^/hot
+    RewriteRule ^ - [L]
+
+    # ── Storage symlink ───────────────────────────────────────────────────────
+    RewriteCond %{REQUEST_URI} ^/storage/
+    RewriteRule ^ - [L]
+
+    # ── Laravel front controller ──────────────────────────────────────────────
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SÉCURITÉ
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Bloquer accès aux fichiers sensibles
+<FilesMatch "(^\.env|\.env\.*|composer\.(json|lock)|^\.git|^\.gitignore|package\.json|webpack\.mix\.js|vite\.config\.js|phpunit\.xml|\.editorconfig)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Désactiver le listage de dossiers
+Options -Indexes
+
+# Désactiver la signature Apache
+ServerSignature Off
+
+<IfModule mod_headers.c>
+    # Protection XSS
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Empêcher le MIME sniffing
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Empêcher l'affichage dans une iframe externe
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Politique de référents
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # HSTS — forcer HTTPS pendant 1 an (à activer une fois le certificat SSL confirmé)
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+    # Permissions Policy — désactiver les fonctionnalités non utilisées
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self), payment=(self)"
+
+    # Supprimer l'en-tête X-Powered-By qui expose PHP
+    Header always unset X-Powered-By
+
+    # Content Security Policy — adapter les domaines selon votre stack
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.google-analytics.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com; frame-src https://www.youtube.com https://player.vimeo.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# COMPRESSION GZIP / BROTLI
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json application/xml
+    AddOutputFilterByType DEFLATE image/svg+xml font/woff font/woff2
+    # Ne pas compresser les formats déjà compressés
+    SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp|avif|zip|gz|bz2)$ no-gzip
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CACHE NAVIGATEUR
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Images — 1 an (immutables via hash Vite)
+    ExpiresByType image/jpeg          "access plus 1 year"
+    ExpiresByType image/jpg           "access plus 1 year"
+    ExpiresByType image/png           "access plus 1 year"
+    ExpiresByType image/webp          "access plus 1 year"
+    ExpiresByType image/avif          "access plus 1 year"
+    ExpiresByType image/gif           "access plus 1 year"
+    ExpiresByType image/svg+xml       "access plus 1 year"
+    ExpiresByType image/x-icon        "access plus 1 year"
+
+    # CSS & JS Vite (hash dans le nom → immutables)
+    ExpiresByType text/css            "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+
+    # Fonts
+    ExpiresByType font/woff           "access plus 1 year"
+    ExpiresByType font/woff2          "access plus 1 year"
+    ExpiresByType font/ttf            "access plus 1 year"
+    ExpiresByType application/font-woff  "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+
+    # PDF
+    ExpiresByType application/pdf     "access plus 1 month"
+
+    # HTML — pas de cache (toujours frais)
+    ExpiresByType text/html           "access plus 0 seconds"
+
+    # Manifeste Vite
+    ExpiresByType application/json    "access plus 0 seconds"
+</IfModule>
+
+# En-tête Cache-Control pour les assets Vite (hashés) — immutable
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|woff|woff2|ttf|svg|png|jpg|jpeg|webp|avif|gif|ico)$">
+        Header append Cache-Control "public, immutable"
+    </FilesMatch>
+    # HTML — no-cache
+    <FilesMatch "\.html?$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHP — Limites (mod_php / php-fpm via .user.ini sur Hostinger)
+# Sur Hostinger Business ces valeurs sont configurées via .user.ini
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<IfModule mod_php8.c>
+    php_value upload_max_filesize  10M
+    php_value post_max_size        12M
+    php_value memory_limit         256M
+    php_value max_execution_time   60
+    php_flag  display_errors       Off
+    php_flag  log_errors           On
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGES D'ERREUR PERSONNALISÉES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Laravel gère les erreurs — ces lignes assurent un fallback propre
+ErrorDocument 403 /index.php
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php

@@ -1,0 +1,440 @@
+/* ══════════════════════════════════════════════════════
+   bookings/show.css — Détail réservation DiscovTrip
+   Tokens app.css : --cream, --f-*, --a-*, --b-*,
+   --tx-*, --bd-*, --sh-*, --font-display, --font-body,
+   --nav-h
+══════════════════════════════════════════════════════ */
+
+.bks-page { background: var(--cream); min-height: 100vh; }
+
+/* ── Hero ────────────────────────────────────────── */
+.bks-hero {
+    position: relative;
+    background: var(--f-900);
+    padding: 3.5rem 0 2.75rem;
+    text-align: center;
+    overflow: hidden;
+}
+.bks-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 90% at 50% 0%, rgba(180,117,26,.18) 0%, transparent 70%);
+    pointer-events: none;
+}
+.bks-hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+.bks-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .38rem 1rem;
+    border-radius: 2rem;
+    border: 1.5px solid;
+    font-family: var(--font-body);
+    font-size: .75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+/* Variantes statut */
+.bks-pill--confirmed  { color: var(--f-300); background: rgba(28,79,50,.25);    border-color: rgba(28,79,50,.5); }
+.bks-pill--pending    { color: #fde68a;      background: rgba(245,158,11,.18);  border-color: rgba(245,158,11,.45); }
+.bks-pill--cancelled  { color: #fca5a5;      background: rgba(185,28,28,.18);   border-color: rgba(185,28,28,.4); }
+.bks-pill--completed  { color: var(--a-300); background: rgba(180,117,26,.18);  border-color: rgba(180,117,26,.4); }
+
+.bks-hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.55rem);
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: .65rem;
+    line-height: 1.15;
+}
+.bks-hero-sub {
+    font-family: var(--font-body);
+    font-size: .88rem;
+    color: rgba(255,255,255,.58);
+    margin-bottom: 1.5rem;
+    line-height: 1.65;
+}
+.bks-ref-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .55rem 1.1rem;
+    background: rgba(255,255,255,.1);
+    border: 1.5px solid rgba(255,255,255,.18);
+    border-radius: 2rem;
+    font-family: monospace;
+    font-size: .88rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: .75rem;
+}
+.bks-copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255,255,255,.5);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color .2s;
+}
+.bks-copy-btn:hover { color: var(--a-400); }
+.bks-guest-alert {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 2rem;
+    font-family: var(--font-body);
+    font-size: .75rem;
+    color: rgba(255,255,255,.62);
+    margin-top: .25rem;
+}
+
+/* Confettis (only when session success) */
+.bks-confetti { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; overflow: hidden; height: 100%; }
+.bks-confetti-piece {
+    position: absolute;
+    top: -10px;
+    width: 7px; height: 7px;
+    border-radius: 2px;
+    animation: bksConf 2.5s ease-in forwards;
+}
+.bks-confetti-piece:nth-child(odd)  { background: var(--a-500); }
+.bks-confetti-piece:nth-child(even) { background: var(--f-300); border-radius: 50%; }
+@keyframes bksConf {
+    0%   { transform: translateY(0)    rotate(0deg);   opacity: 1; }
+    100% { transform: translateY(320px) rotate(400deg); opacity: 0; }
+}
+
+/* ── Layout principal ────────────────────────────── */
+.bks-body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 5rem;
+    display: grid;
+    grid-template-columns: 1fr 310px;
+    gap: 1.75rem;
+    align-items: start;
+}
+@media (max-width: 860px) { .bks-body { grid-template-columns: 1fr; } }
+
+/* ── Cartes ──────────────────────────────────────── */
+.bks-card {
+    background: #fff;
+    border: 1.5px solid var(--bd-light);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--sh-sm);
+}
+.bks-card:last-child { margin-bottom: 0; }
+.bks-card--warn { border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.03); }
+
+.bks-card-label {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-family: var(--font-body);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--tx-soft);
+    margin-bottom: 1.1rem;
+}
+.bks-card-label svg { color: var(--a-500); flex-shrink: 0; }
+
+/* ── Bloc offre ──────────────────────────────────── */
+.bks-offer-row { display: flex; gap: 1rem; align-items: flex-start; }
+.bks-offer-img {
+    width: 96px; height: 72px;
+    border-radius: .75rem;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.bks-offer-img-ph {
+    width: 96px; height: 72px;
+    border-radius: .75rem;
+    background: var(--f-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--f-500);
+    flex-shrink: 0;
+}
+.bks-offer-city {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    font-family: var(--font-body);
+    font-size: .72rem;
+    color: var(--tx-soft);
+    margin-bottom: .3rem;
+}
+.bks-offer-city svg { color: var(--a-500); }
+.bks-offer-name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--f-900);
+    line-height: 1.25;
+    margin-bottom: .4rem;
+}
+.bks-offer-tier {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-family: var(--font-body);
+    font-size: .72rem;
+    color: var(--a-600);
+    background: rgba(180,117,26,.09);
+    padding: .2rem .6rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    margin-bottom: .5rem;
+}
+.bks-offer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-family: var(--font-body);
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--f-700);
+    text-decoration: none;
+    transition: gap .2s;
+}
+.bks-offer-link:hover { gap: .55rem; }
+
+/* ── Grille détails ──────────────────────────────── */
+.bks-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 560px) { .bks-details-grid { grid-template-columns: 1fr; } }
+
+.bks-detail { display: flex; align-items: flex-start; gap: .75rem; }
+.bks-detail-icon {
+    width: 34px; height: 34px;
+    border-radius: .6rem;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.bks-detail-icon svg { color: var(--a-500); }
+.bks-detail-lbl {
+    font-family: var(--font-body);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--tx-soft);
+    margin-bottom: .2rem;
+}
+.bks-detail-val {
+    font-family: var(--font-body);
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--f-900);
+    line-height: 1.4;
+}
+.bks-detail-sub {
+    font-family: var(--font-body);
+    font-size: .72rem;
+    color: var(--tx-soft);
+    margin-top: .15rem;
+}
+.bks-chip {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: .65rem;
+    font-weight: 700;
+    padding: .15rem .55rem;
+    border-radius: 2rem;
+    margin-left: .4rem;
+    vertical-align: middle;
+}
+.bks-chip--paid    { background: rgba(28,79,50,.1); color: var(--f-700); }
+.bks-chip--pending { background: rgba(245,158,11,.1); color: #92400e; }
+
+.bks-notes {
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--bd-light);
+}
+.bks-notes-lbl {
+    font-family: var(--font-body);
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--tx-soft);
+    margin-bottom: .45rem;
+}
+.bks-notes p {
+    font-family: var(--font-body);
+    font-size: .85rem;
+    color: var(--tx-mid);
+    line-height: 1.65;
+    font-style: italic;
+}
+
+/* ── Bouton paiement ─────────────────────────────── */
+.bks-pay-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .75rem 1.25rem;
+    background: var(--a-500);
+    color: #fff;
+    border-radius: .65rem;
+    font-family: var(--font-body);
+    font-size: .88rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background .2s, transform .15s;
+}
+.bks-pay-btn:hover { background: var(--a-600); transform: translateY(-1px); }
+
+/* ── Actions ─────────────────────────────────────── */
+.bks-actions { display: flex; flex-direction: column; gap: .65rem; }
+.bks-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    padding: .8rem 1.25rem;
+    border-radius: .75rem;
+    font-family: var(--font-body);
+    font-size: .85rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1.5px solid;
+    background: none;
+    transition: all .2s;
+    width: 100%;
+    text-align: center;
+}
+.bks-action--pdf    { border-color: var(--bd-mid); color: var(--tx-mid); }
+.bks-action--pdf:hover { border-color: var(--f-700); color: var(--f-700); background: var(--cream); }
+.bks-action--wa  { border-color: rgba(37,211,102,.35); color: #166534; background: rgba(37,211,102,.06); }
+.bks-action--wa:hover { background: rgba(37,211,102,.12); }
+.bks-action--cancel { border-color: rgba(220,38,38,.25); color: #dc2626; background: rgba(220,38,38,.04); }
+.bks-action--cancel:hover { background: rgba(220,38,38,.1); }
+
+/* ── Sidebar ─────────────────────────────────────── */
+.bks-price-rows { display: flex; flex-direction: column; gap: .6rem; }
+.bks-price-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-body);
+    font-size: .82rem;
+    color: var(--tx-mid);
+}
+.bks-price-row--total {
+    padding-top: .65rem;
+    border-top: 1.5px solid var(--bd-light);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--f-900);
+}
+.bks-price-row--total span:last-child {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--f-700);
+}
+.bks-price-eur {
+    font-family: var(--font-body);
+    font-size: .72rem;
+    color: var(--tx-muted);
+    text-align: right;
+    margin-top: .25rem;
+}
+
+/* Card PDF sidebar */
+.bks-pdf-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 1rem;
+    background: #fff;
+    border: 1.5px solid var(--bd-light);
+    border-radius: 1rem;
+    text-decoration: none;
+    box-shadow: var(--sh-sm);
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.bks-pdf-card:hover { transform: translateY(-2px); box-shadow: var(--sh-md); border-color: var(--f-400); }
+.bks-pdf-icon {
+    width: 42px; height: 42px;
+    background: var(--f-700);
+    color: #fff;
+    border-radius: .65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.bks-pdf-title  { font-family: var(--font-body); font-size: .88rem; font-weight: 700; color: var(--f-900); }
+.bks-pdf-sub    { font-family: var(--font-body); font-size: .72rem; color: var(--tx-soft); margin-top: .1rem; }
+.bks-pdf-dl     { margin-left: auto; color: var(--f-700); flex-shrink: 0; }
+
+/* Tips */
+.bks-tips { display: flex; flex-direction: column; gap: .75rem; }
+.bks-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: .6rem;
+    font-family: var(--font-body);
+    font-size: .8rem;
+    color: var(--tx-soft);
+    line-height: 1.55;
+}
+.bks-tip svg { color: var(--a-500); flex-shrink: 0; margin-top: .1rem; }
+
+/* Boutons sidebar */
+.bks-wa-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .7rem;
+    background: #25d366;
+    color: #fff;
+    border-radius: .65rem;
+    font-family: var(--font-body);
+    font-size: .85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity .2s;
+}
+.bks-wa-btn:hover { opacity: .88; }
+.bks-explore-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .75rem;
+    border: 1.5px solid var(--bd-light);
+    border-radius: .75rem;
+    font-family: var(--font-body);
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--tx-mid);
+    text-decoration: none;
+    transition: border-color .2s, color .2s;
+    margin-top: .75rem;
+}
+.bks-explore-btn:hover { border-color: var(--f-700); color: var(--f-700); }

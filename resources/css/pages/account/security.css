@@ -1,0 +1,94 @@
+/* account/security.css · préfixe sec- */
+
+.sec-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+.sec-side { display: flex; flex-direction: column; gap: 16px; }
+@media (max-width: 860px) { .sec-grid { grid-template-columns: 1fr; } }
+
+.sec-form { display: flex; flex-direction: column; gap: 16px; }
+
+.sec-field { display: flex; flex-direction: column; gap: 6px; }
+.sec-label { font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--tx-mid); }
+.sec-input-wrap { position: relative; display: flex; align-items: center; }
+.sec-input {
+    width: 100%; padding: 11px 42px 11px 14px;
+    background: var(--cream-2); border: 1.5px solid var(--bd-mid);
+    border-radius: var(--r-sm); font-family: var(--font-body);
+    font-size: .9rem; color: var(--tx-primary);
+    outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.sec-input:focus { border-color: var(--a-400); box-shadow: 0 0 0 3px color-mix(in srgb, var(--a-400) 12%, transparent); }
+.sec-field--err .sec-input { border-color: var(--b-500); }
+.sec-eye { position: absolute; right: 11px; background: none; border: none; cursor: pointer; color: var(--tx-muted); opacity: .45; transition: opacity .2s; padding: 4px; display: flex; align-items: center; }
+.sec-eye:hover { opacity: .9; }
+.sec-err { font-size: .75rem; color: var(--b-500); font-weight: 500; }
+
+.sec-strength { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.sec-strength-bar { flex: 1; height: 4px; background: var(--cream-3); border-radius: var(--r-pill); overflow: hidden; }
+.sec-strength-fill { height: 100%; border-radius: var(--r-pill); width: 0; transition: width .3s, background .3s; }
+.sec-strength-lbl { font-size: .72rem; font-weight: 700; white-space: nowrap; min-width: 60px; }
+
+.sec-submit { width: 100%; border-radius: var(--r-md); margin-top: 4px; }
+
+/* Info card */
+.sec-info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--bd-light); gap: 12px; }
+.sec-info-row:last-child { border-bottom: none; }
+.sec-info-lbl { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--tx-muted); flex-shrink: 0; }
+.sec-info-val { font-size: .845rem; color: var(--tx-mid); text-align: right; }
+
+.sec-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: var(--r-pill); font-size: .72rem; font-weight: 800; }
+.sec-badge--ok   { background: color-mix(in srgb, var(--f-500) 10%, transparent); color: var(--f-700); border: 1.5px solid color-mix(in srgb, var(--f-500) 20%, transparent); }
+.sec-badge--warn { background: color-mix(in srgb, var(--a-400) 12%, transparent); color: var(--a-600); border: 1.5px solid color-mix(in srgb, var(--a-400) 22%, transparent); }
+
+/* Tips */
+.sec-tips { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.sec-tips li { font-size: .82rem; color: var(--tx-soft); padding-left: 16px; position: relative; line-height: 1.5; }
+.sec-tips li::before { content: '→'; position: absolute; left: 0; color: var(--a-500); font-weight: 700; font-size: .75rem; }
+
+.sec-logout-btn { width: 100%; border-radius: var(--r-md); justify-content: center; }
+
+/* Zone dangereuse */
+.sec-delete-zone {
+    background: color-mix(in srgb, var(--b-500) 4%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--b-500) 18%, transparent);
+    border-radius: var(--r-lg);
+    padding: 18px;
+}
+.sec-delete-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--b-700);
+    margin-bottom: 10px;
+}
+.sec-delete-text {
+    font-size: .82rem;
+    color: var(--tx-soft);
+    line-height: 1.6;
+    margin-bottom: 14px;
+}
+.sec-delete-text strong { color: var(--b-700); }
+.sec-delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    background: transparent;
+    border: 1.5px solid color-mix(in srgb, var(--b-500) 35%, transparent);
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--b-700);
+    cursor: pointer;
+    transition: all .2s;
+}
+.sec-delete-btn:hover {
+    background: color-mix(in srgb, var(--b-500) 8%, transparent);
+    border-color: var(--b-500);
+}

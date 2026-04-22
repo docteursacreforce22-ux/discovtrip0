@@ -1,0 +1,240 @@
+/* ═══════════════════════════════════════════════════════════
+   legal.css — Pages légales DiscovTrip
+   Utilisé par : CGU, Confidentialité, Annulation
+   Préfixe : .lg-
+═══════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────
+   §1  HERO
+───────────────────────────────────────── */
+
+.lg-hero {
+    background: var(--f-900);
+    margin-top: calc(-1 * var(--nav-h));
+    padding-top: calc(var(--nav-h) + 64px);
+    padding-bottom: 64px;
+    position: relative; overflow: hidden;
+}
+.lg-hero-glow {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse 50% 70% at 10% 50%, rgba(42,143,94,.2) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 50% at 90% 20%, rgba(212,162,15,.1) 0%, transparent 55%);
+}
+.lg-hero-inner {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column;
+    align-items: flex-start; gap: 16px;
+    max-width: 680px;
+}
+.lg-hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--a-400);
+}
+.lg-hero-eyebrow span {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--a-400); opacity: .6;
+}
+.lg-hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 700; font-style: italic;
+    color: white; line-height: 1.05;
+    margin: 0;
+}
+.lg-hero-title em { color: var(--a-400); font-style: italic; }
+.lg-hero-meta {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    font-size: 12px; color: rgba(255,255,255,.45);
+    border-top: 1px solid rgba(255,255,255,.1);
+    padding-top: 16px; margin-top: 4px; width: 100%;
+}
+.lg-hero-meta i { color: var(--a-400); font-size: 10px; margin-right: 4px; }
+
+/* ─────────────────────────────────────────
+   §2  LAYOUT — sidebar TOC + contenu
+───────────────────────────────────────── */
+
+.lg-body {
+    background: var(--cream-2);
+    padding: 64px 0 100px;
+}
+.lg-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 48px;
+    align-items: start;
+}
+
+/* ── Sidebar Table des matières ── */
+.lg-toc {
+    position: sticky; top: calc(var(--nav-h) + 24px);
+    background: white;
+    border: 1.5px solid var(--cream-3);
+    border-radius: 18px; overflow: hidden;
+}
+.lg-toc-header {
+    padding: 16px 20px;
+    background: var(--f-900);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--a-400);
+    display: flex; align-items: center; gap: 8px;
+}
+.lg-toc-header i { font-size: 11px; }
+.lg-toc-list { padding: 10px 0; }
+.lg-toc-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    font-size: 12px; font-weight: 600; color: #7a6a58;
+    text-decoration: none; cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all .2s;
+}
+.lg-toc-item:hover { color: var(--f-900); background: var(--cream); border-left-color: var(--a-400); }
+.lg-toc-item.lg-toc-active { color: var(--a-600); background: rgba(212,162,15,.06); border-left-color: var(--a-500); font-weight: 700; }
+.lg-toc-num {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    background: var(--cream-2); border: 1px solid var(--cream-3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800; color: #9a8a78;
+    transition: all .2s;
+}
+.lg-toc-item:hover .lg-toc-num,
+.lg-toc-item.lg-toc-active .lg-toc-num {
+    background: var(--a-500); color: white; border-color: var(--a-500);
+}
+
+/* ── Contenu principal ── */
+.lg-content {
+    background: white;
+    border: 1.5px solid var(--cream-3);
+    border-radius: 24px; padding: 52px 56px;
+}
+
+.lg-section { margin-bottom: 52px; padding-bottom: 52px; border-bottom: 1px solid var(--cream-3); }
+.lg-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+.lg-section-num {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--a-500); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+}
+.lg-section-num::before {
+    content: '';
+    display: inline-block;
+    width: 20px; height: 2px;
+    background: linear-gradient(90deg, var(--a-400), var(--a-600));
+    border-radius: 2px;
+}
+.lg-section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 700; font-style: italic;
+    color: var(--f-900); margin-bottom: 20px; line-height: 1.2;
+}
+.lg-section-title em { color: var(--a-500); }
+
+.lg-p {
+    font-size: 15px; line-height: 1.8; color: #5a4a3a;
+    margin-bottom: 14px;
+}
+.lg-p:last-child { margin-bottom: 0; }
+.lg-p strong { color: var(--f-900); font-weight: 700; }
+
+.lg-ul {
+    list-style: none; padding: 0; margin: 14px 0;
+    display: flex; flex-direction: column; gap: 10px;
+}
+.lg-ul li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 14px; line-height: 1.7; color: #5a4a3a;
+}
+.lg-ul li::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--a-400); flex-shrink: 0;
+    margin-top: 8px;
+}
+
+/* Box highlight */
+.lg-box {
+    padding: 20px 22px; border-radius: 14px;
+    background: linear-gradient(135deg, rgba(212,162,15,.07), rgba(212,162,15,.03));
+    border: 1.5px solid rgba(212,162,15,.2);
+    border-left: 4px solid var(--a-400);
+    margin: 20px 0;
+}
+.lg-box-title {
+    font-size: 12px; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--a-600); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 7px;
+}
+.lg-box-title i { font-size: 11px; }
+.lg-box p { font-size: 14px; line-height: 1.7; color: #5a4a3a; margin: 0; }
+
+/* Box warning */
+.lg-box--warn {
+    background: linear-gradient(135deg, rgba(42,143,94,.06), rgba(42,143,94,.02));
+    border-color: rgba(42,143,94,.2);
+    border-left-color: var(--f-500);
+}
+.lg-box--warn .lg-box-title { color: var(--f-600); }
+
+/* Table */
+.lg-table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 12px; border: 1.5px solid var(--cream-3); }
+.lg-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px;
+}
+.lg-table th {
+    background: var(--f-900); color: white;
+    padding: 12px 16px; text-align: left;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase;
+}
+.lg-table td {
+    padding: 12px 16px; border-bottom: 1px solid var(--cream-3);
+    color: #5a4a3a; line-height: 1.6;
+}
+.lg-table tr:last-child td { border-bottom: none; }
+.lg-table tr:hover td { background: var(--cream); }
+
+/* Contact block */
+.lg-contact {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 22px; border-radius: 14px;
+    background: var(--f-900); margin-top: 20px;
+}
+.lg-contact-icon {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    background: rgba(212,162,15,.15); border: 1px solid rgba(212,162,15,.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--a-400);
+}
+.lg-contact-label { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 3px; }
+.lg-contact-val { font-size: 14px; font-weight: 600; color: white; }
+.lg-contact-val a { color: var(--a-400); text-decoration: none; }
+.lg-contact-val a:hover { text-decoration: underline; }
+
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+    .lg-layout { grid-template-columns: 1fr; }
+    .lg-toc { position: static; }
+    .lg-toc-list { display: flex; flex-wrap: wrap; padding: 10px 12px; gap: 4px; }
+    .lg-toc-item { border-left: none; border-radius: 50px; padding: 6px 14px; border: 1.5px solid var(--cream-3); }
+    .lg-toc-item.lg-toc-active { border-color: var(--a-400); }
+    .lg-toc-num { display: none; }
+}
+
+@media (max-width: 768px) {
+    .lg-content { padding: 28px 22px; }
+    .lg-section { margin-bottom: 36px; padding-bottom: 36px; }
+}

@@ -1,0 +1,91 @@
+/* account/bookings.css · préfixe bk- */
+
+/* Filtres */
+.bk-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.bk-filter {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 16px; border-radius: var(--r-pill);
+    font-size: .78rem; font-weight: 700;
+    text-decoration: none; color: var(--tx-soft);
+    background: var(--cream); border: 1.5px solid var(--bd-light);
+    transition: all .2s;
+}
+.bk-filter:hover { border-color: var(--bd-mid); color: var(--tx-mid); }
+.bk-filter--on   { background: var(--ink-3); color: var(--tx-inv); border-color: var(--ink-3); }
+.bk-filter-n {
+    background: var(--a-400); color: var(--ink-3);
+    font-size: .65rem; font-weight: 800;
+    padding: 1px 7px; border-radius: var(--r-pill);
+}
+
+/* Ligne réservation */
+.bk-row {
+    display: grid;
+    grid-template-columns: 72px 1fr auto auto;
+    align-items: center;
+    gap: 18px;
+    background: var(--cream);
+    border: 1.5px solid var(--bd-light);
+    border-radius: var(--r-lg);
+    padding: 18px 22px;
+    box-shadow: var(--sh-sm);
+    transition: box-shadow .2s, border-color .2s;
+}
+.bk-row:hover { box-shadow: var(--sh-md); border-color: var(--bd-mid); }
+.bk-row--dim  { opacity: .65; }
+
+/* Vignette */
+.bk-thumb {
+    width: 72px; height: 72px;
+    border-radius: var(--r-md);
+    background: var(--cream-3) center/cover no-repeat;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* Infos */
+.bk-info-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+.bk-ref { font-size: .65rem; font-weight: 700; letter-spacing: .06em; color: var(--tx-muted); text-transform: uppercase; background: none; }
+.bk-name { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; color: var(--tx-primary); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bk-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: .75rem; color: var(--tx-muted); }
+.bk-meta span { display: inline-flex; align-items: center; gap: 4px; }
+
+/* Prix */
+.bk-price-col { text-align: right; flex-shrink: 0; }
+.bk-price    { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--tx-primary); }
+.bk-currency { font-size: .65rem; font-weight: 700; color: var(--tx-muted); letter-spacing: .05em; }
+
+/* Actions */
+.bk-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+.bk-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 8px 14px; border-radius: var(--r-sm);
+    font-family: var(--font-body); font-size: .75rem; font-weight: 700;
+    text-decoration: none; cursor: pointer; border: none;
+    white-space: nowrap; transition: all .18s;
+}
+.bk-btn--view { background: var(--ink-3); color: var(--tx-inv); }
+.bk-btn--view:hover { background: var(--ink); }
+.bk-btn--pdf  { background: color-mix(in srgb, var(--f-500) 9%, transparent); color: var(--f-700); border: 1.5px solid color-mix(in srgb, var(--f-500) 20%, transparent); }
+.bk-btn--pdf:hover  { background: color-mix(in srgb, var(--f-500) 15%, transparent); }
+.bk-btn--cancel { background: color-mix(in srgb, var(--b-500) 7%, transparent); color: var(--b-700); border: 1.5px solid color-mix(in srgb, var(--b-500) 16%, transparent); }
+.bk-btn--cancel:hover { background: color-mix(in srgb, var(--b-500) 13%, transparent); border-color: var(--b-500); }
+
+/* Pagination */
+.bk-pagination { display: flex; justify-content: center; margin-top: 8px; }
+.bk-pagination .pagination { display: flex; gap: 6px; list-style: none; padding: 0; }
+.bk-pagination .page-link { display: flex; align-items: center; justify-content: center; min-width: 38px; height: 38px; padding: 0 10px; border-radius: var(--r-sm); background: var(--cream); border: 1.5px solid var(--bd-light); color: var(--tx-mid); font-size: .845rem; font-weight: 600; text-decoration: none; transition: all .2s; }
+.bk-pagination .page-link:hover,
+.bk-pagination .page-item.active .page-link { background: var(--ink-3); color: var(--tx-inv); border-color: var(--ink-3); }
+.bk-pagination .page-item.disabled .page-link { opacity: .35; pointer-events: none; }
+
+@media (max-width: 768px) {
+    .bk-row { grid-template-columns: 56px 1fr; grid-template-rows: auto auto; }
+    .bk-thumb { width: 56px; height: 56px; }
+    .bk-price-col { grid-column: 2; }
+    .bk-actions { grid-column: 1/-1; flex-direction: row; flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+    .bk-row { grid-template-columns: 1fr; }
+    .bk-thumb { display: none; }
+}

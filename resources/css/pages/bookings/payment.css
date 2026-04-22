@@ -1,0 +1,354 @@
+/* ══════════════════════════════════════════════════════
+   bookings/payment.css — Page paiement DiscovTrip
+   Tokens : --cream, --f-*, --a-*, --b-*, --tx-*, --bd-*
+   Préfixe : .py-
+══════════════════════════════════════════════════════ */
+
+.py-page { background: var(--cream-2); min-height: 100vh; }
+
+/* ── Hero ────────────────────────────────────────── */
+.py-hero {
+    position: relative;
+    background: var(--f-900);
+    padding: calc(var(--nav-h) + 52px) 0 52px;
+    text-align: center;
+    overflow: hidden;
+}
+.py-hero-glow {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse 60% 80% at 50% 120%, rgba(212,162,15,.2) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 40% at 10% 30%, rgba(42,143,94,.1) 0%, transparent 50%);
+}
+.py-hero-inner {
+    position: relative; z-index: 2;
+    max-width: 600px; margin: 0 auto; padding: 0 1.5rem;
+}
+.py-hero-eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-size: .7rem; font-weight: 800;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--a-400); margin-bottom: 1.25rem;
+}
+.py-hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700; font-style: italic;
+    color: white; line-height: 1.08;
+    margin: 0 0 1rem;
+}
+.py-hero-title em { color: var(--a-400); }
+.py-hero-sub {
+    font-size: .9rem; line-height: 1.7;
+    color: rgba(255,255,255,.6); margin-bottom: 1.5rem;
+}
+.py-ref-chip {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .5rem 1.1rem; border-radius: 2rem;
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.15);
+    font-size: .8rem; color: rgba(255,255,255,.7);
+    font-family: var(--font-body); font-weight: 500;
+}
+.py-ref-chip strong { color: var(--a-400); font-family: monospace; }
+
+/* ── Body ────────────────────────────────────────── */
+.py-body { padding: 48px 0 100px; }
+
+.py-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 32px; align-items: start;
+}
+
+/* ── Alertes ─────────────────────────────────────── */
+.py-alert {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 14px 18px; border-radius: 12px;
+    font-size: .85rem; line-height: 1.65; margin-bottom: 20px;
+}
+.py-alert--err  { background: rgba(201,57,35,.07); border: 1.5px solid rgba(201,57,35,.25); color: #b03520; }
+.py-alert--info { background: rgba(212,162,15,.08); border: 1.5px solid rgba(212,162,15,.25); color: #7a5c00; }
+
+/* ── Sections ────────────────────────────────────── */
+.py-section { margin-bottom: 28px; }
+.py-section-head { margin-bottom: 16px; }
+.py-section-label {
+    display: flex; align-items: center; gap: 9px;
+    font-size: .68rem; font-weight: 800;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--a-500); margin-bottom: 4px;
+}
+.py-label-bar {
+    width: 22px; height: 2px;
+    background: linear-gradient(90deg, var(--a-400), var(--a-600)); border-radius: 2px;
+}
+.py-section-sub { font-size: .8rem; color: #9a8a78; margin: 0; }
+
+/* ── Méthodes de paiement ────────────────────────── */
+.py-methods { display: flex; flex-direction: column; gap: 12px; }
+
+.py-method {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 22px; border-radius: 16px;
+    background: white; border: 2px solid var(--cream-3);
+    text-decoration: none; cursor: pointer;
+    transition: all .28s cubic-bezier(.22,1,.36,1);
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+.py-method:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.1);
+}
+.py-method--fedapay:hover { border-color: #ffd700; }
+.py-method--stripe:hover  { border-color: #635bff; }
+
+.py-method-icon {
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    background: rgba(212,162,15,.1); border: 1px solid rgba(212,162,15,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--a-500);
+    transition: background .25s;
+}
+.py-method--fedapay:hover .py-method-icon { background: rgba(255,215,0,.15); }
+.py-method-icon--card { background: rgba(99,91,255,.08); border-color: rgba(99,91,255,.2); color: #635bff; }
+.py-method--stripe:hover .py-method-icon { background: rgba(99,91,255,.15); }
+
+.py-method-body { flex: 1; }
+.py-method-title {
+    font-size: .95rem; font-weight: 700; color: var(--f-900);
+    margin-bottom: 2px; transition: color .2s;
+}
+.py-method--fedapay:hover .py-method-title { color: #8a6a00; }
+.py-method--stripe:hover  .py-method-title { color: #635bff; }
+.py-method-sub { font-size: .75rem; color: #9a8a78; margin-bottom: 8px; }
+
+.py-method-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.py-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 50px;
+    font-size: .68rem; font-weight: 700;
+    background: var(--cream-2); border: 1px solid var(--cream-3);
+    color: #7a6a58;
+}
+.py-badge--green { background: rgba(42,143,94,.1); border-color: rgba(42,143,94,.25); color: var(--f-600); }
+.py-badge--blue  { background: rgba(99,91,255,.08); border-color: rgba(99,91,255,.2); color: #635bff; }
+
+.py-method-amount {
+    display: flex; flex-direction: column; align-items: flex-end;
+    flex-shrink: 0; margin-right: 8px;
+}
+.py-method-price {
+    font-family: var(--font-display);
+    font-size: 1.4rem; font-weight: 700; color: var(--f-900);
+    line-height: 1;
+}
+.py-method-cur { font-size: .7rem; color: #9a8a78; font-weight: 600; }
+
+.py-method-arrow {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: var(--cream-2); border: 1.5px solid var(--cream-3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #9a8a78;
+    transition: all .25s;
+}
+.py-method:hover .py-method-arrow {
+    background: var(--f-900); border-color: var(--f-900); color: white;
+    transform: translateX(2px);
+}
+
+/* ── Séparateur OU ───────────────────────────────── */
+.py-or {
+    display: flex; align-items: center; gap: 16px;
+    margin: 4px 0; color: #9a8a78;
+    font-size: .75rem; font-weight: 700; letter-spacing: .1em;
+}
+.py-or::before, .py-or::after {
+    content: ''; flex: 1; height: 1px; background: var(--cream-3);
+}
+
+/* ── Paiement sur place ──────────────────────────── */
+.py-onsite {
+    background: white; border: 2px solid var(--cream-3);
+    border-radius: 16px; padding: 22px;
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;
+}
+.py-onsite-icon {
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    background: rgba(42,143,94,.1); border: 1px solid rgba(42,143,94,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--f-500);
+}
+.py-onsite-body { flex: 1; min-width: 200px; }
+.py-onsite-title {
+    font-size: .95rem; font-weight: 700; color: var(--f-900);
+    margin-bottom: 6px;
+}
+.py-onsite-text { font-size: .82rem; line-height: 1.7; color: #7a6a58; margin-bottom: 12px; }
+.py-onsite-list {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    font-size: .75rem; color: var(--f-600); font-weight: 600;
+}
+.py-onsite-list span { display: flex; align-items: center; gap: 5px; }
+.py-onsite-list i { font-size: .65rem; }
+
+.py-onsite-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px; border-radius: 50px; flex-shrink: 0;
+    background: var(--f-900); color: white;
+    text-decoration: none; font-size: .82rem; font-weight: 700;
+    transition: all .25s; white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(13,56,34,.2);
+}
+.py-onsite-btn:hover { background: var(--f-700); color: white; transform: translateY(-1px); }
+
+/* ── Mode indisponible ───────────────────────────── */
+.py-unavailable {
+    background: white; border: 2px solid var(--cream-3);
+    border-radius: 16px; padding: 40px 28px;
+    text-align: center;
+}
+.py-unavailable-icon { font-size: 48px; margin-bottom: 14px; }
+.py-unavailable h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem; font-weight: 700; color: var(--f-900); margin-bottom: 8px;
+}
+.py-unavailable p { font-size: .85rem; color: #7a6a58; margin-bottom: 20px; line-height: 1.65; }
+.py-contact-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 24px; border-radius: 50px;
+    background: var(--a-500); color: white; text-decoration: none;
+    font-size: .85rem; font-weight: 700;
+    box-shadow: 0 4px 14px rgba(212,162,15,.3); transition: all .25s;
+}
+.py-contact-btn:hover { background: var(--a-400); color: white; transform: translateY(-1px); }
+
+/* ── Garanties ───────────────────────────────────── */
+.py-guarantees {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-top: 20px; padding-top: 20px;
+    border-top: 1px solid var(--cream-3);
+}
+.py-guarantee {
+    display: flex; align-items: center; gap: 7px;
+    font-size: .73rem; color: #9a8a78; font-weight: 500;
+}
+.py-guarantee i { color: var(--f-500); font-size: .7rem; }
+
+/* ── Sidebar ─────────────────────────────────────── */
+.py-sidebar { display: flex; flex-direction: column; gap: 14px; }
+
+/* Récap */
+.py-recap {
+    background: white; border: 1.5px solid var(--cream-3);
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,.05);
+}
+.py-recap-head {
+    background: var(--f-900); color: var(--a-400);
+    padding: 14px 20px;
+    font-size: .7rem; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+}
+
+.py-recap-img-wrap {
+    position: relative; height: 140px; overflow: hidden;
+}
+.py-recap-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.py-recap-img-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(13,56,34,.85) 0%, transparent 55%);
+}
+.py-recap-img-title {
+    position: absolute; bottom: 12px; left: 14px; right: 14px;
+    font-family: var(--font-display);
+    font-size: 1rem; font-weight: 700; font-style: italic;
+    color: white; line-height: 1.2;
+}
+.py-recap-img-ph {
+    height: 80px; background: linear-gradient(135deg, var(--f-900), var(--f-700));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.1rem; font-style: italic; color: var(--a-400);
+    padding: 0 16px;
+}
+
+.py-recap-body { padding: 16px 18px 20px; }
+
+.py-recap-row {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid var(--cream-3);
+}
+.py-recap-row:last-of-type { border-bottom: none; }
+.py-recap-lbl {
+    font-size: .73rem; color: #9a8a78; font-weight: 500;
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.py-recap-lbl i { font-size: .65rem; color: var(--a-500); }
+.py-recap-val { font-size: .8rem; font-weight: 600; color: var(--f-900); text-align: right; }
+
+.py-recap-divider { height: 1px; background: var(--cream-3); margin: 6px 0 14px; }
+
+.py-recap-total {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+}
+.py-recap-total-lbl {
+    font-size: .75rem; font-weight: 700; color: var(--f-900);
+    text-transform: uppercase; letter-spacing: .06em;
+}
+.py-recap-total-amount { display: flex; align-items: baseline; gap: 4px; }
+.py-recap-total-num {
+    font-family: var(--font-display);
+    font-size: 1.5rem; font-weight: 700; color: var(--a-500); line-height: 1;
+}
+.py-recap-total-cur { font-size: .7rem; font-weight: 700; color: var(--a-500); }
+
+/* Lien retour */
+.py-back-link {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px; border-radius: 12px;
+    background: white; border: 1.5px solid var(--cream-3);
+    text-decoration: none; font-size: .8rem; font-weight: 600; color: #7a6a58;
+    transition: all .22s;
+}
+.py-back-link:hover { border-color: var(--a-400); color: var(--a-600); }
+
+/* WhatsApp aide */
+.py-wa {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-radius: 14px;
+    background: linear-gradient(135deg, #1a7a3a, #128c2e);
+    text-decoration: none;
+    transition: all .28s cubic-bezier(.22,1,.36,1);
+    box-shadow: 0 3px 14px rgba(18,140,46,.22);
+}
+.py-wa:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(18,140,46,.32); }
+.py-wa-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: white; flex-shrink: 0;
+}
+.py-wa-title { font-size: .83rem; font-weight: 700; color: white; }
+.py-wa-sub   { font-size: .7rem; color: rgba(255,255,255,.65); }
+.py-wa-arrow { font-size: .75rem; color: rgba(255,255,255,.55); margin-left: auto; transition: transform .22s; }
+.py-wa:hover .py-wa-arrow { transform: translateX(3px); color: white; }
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 960px) {
+    .py-grid { grid-template-columns: 1fr; }
+    .py-sidebar { order: -1; }
+    .py-recap-img-wrap { height: 120px; }
+}
+
+@media (max-width: 640px) {
+    .py-method { flex-wrap: wrap; }
+    .py-method-amount { order: 3; width: 100%; flex-direction: row; align-items: baseline; gap: 5px; }
+    .py-method-price { font-size: 1.2rem; }
+    .py-onsite { flex-direction: column; }
+    .py-onsite-btn { width: 100%; justify-content: center; }
+    .py-guarantees { flex-direction: column; }
+}
