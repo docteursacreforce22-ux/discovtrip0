@@ -8,36 +8,43 @@ use Illuminate\Support\Facades\Hash;
 
 class CreateAdmin extends Command
 {
-    protected $signature = 'admin:create';
-    protected $description = 'Créer le compte admin depuis les variables env';
+    protected $signature   = 'admin:create';
+    protected $description = 'Créer le compte admin depuis les variables de configuration';
 
     public function handle(): void
     {
-        $email    = env('ADMIN_EMAIL');
-        $password = env('ADMIN_PASSWORD');
+        // CORRECTION : utiliser config() au lieu de env()
+        // env() retourne null après php artisan config:cache (comportement normal Laravel)
+        $email    = config('discovtrip.admin_email');
+        $password = config('discovtrip.admin_password');
 
-        if (!$email || !$password) {
-            $this->info('ADMIN_EMAIL ou ADMIN_PASSWORD non défini — ignoré.');
+        // Fallback : lire directement depuis $_ENV si config:cache pas encore fait
+        if (! $email) {
+            $email    = $_ENV['ADMIN_EMAIL']    ?? null;
+            $password = $_ENV['ADMIN_PASSWORD'] ?? null;
+        }
+
+        if (! $email || ! $password) {
+            $this->info('ADMIN_EMAIL ou ADMIN_PASSWORD non défini — création admin ignorée.');
             return;
         }
 
         if (User::where('email', $email)->exists()) {
-            $this->info('Admin déjà existant — ignoré.');
+            $this->info('Admin déjà existant (' . $email . ') — ignoré.');
             return;
         }
 
-        $user = new User();
-        $user->first_name = 'Admin';
-        $user->last_name  = 'DiscovTrip';
-        $user->email      = $email;
-        $user->forceFill([
-            'password'       => \Illuminate\Support\Facades\Hash::make($password),
+        User::forceCreate([
+            'first_name'     => 'Admin',
+            'last_name'      => 'DiscovTrip',
+            'email'          => $email,
+            'password'       => Hash::make($password),
             'role'           => 'admin',
             'is_active'      => true,
             'is_banned'      => false,
             'email_verified' => true,
-        ])->save();
+        ]);
 
-        $this->info('✅ Admin créé : ' . $email);
+        $this->info('✅ Compte admin créé : ' . $email);
     }
 }

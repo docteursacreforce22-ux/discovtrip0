@@ -21,10 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ── Trust Proxies (Railway / Fastly CDN) ──────────────────
         // CRITIQUE : sans ça, les requêtes arrivent en http://
-        // → la signature Livewire est générée en https:// mais
-        //   vérifiée en http:// → 401 Unauthorized sur upload-file.
-        // Kernel.php est ignoré en Laravel 11/12 pour les proxies —
-        // seul bootstrap/app.php est pris en compte.
+        // ce qui casse la génération des URLs signées, HTTPS forcé,
+        // et les redirections de Livewire.
         $middleware->trustProxies(
             at: '*',
             headers: Request::HEADER_X_FORWARDED_FOR      |
@@ -46,9 +44,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // ── Exclusions CSRF ────────────────────────────────────────
-        // Le webhook Stripe doit recevoir le payload brut non modifié
+        // Les webhooks paiement reçoivent le payload brut non modifié.
+        // Ils ont leur propre vérification de signature (KKiaPay / Stripe).
         $middleware->validateCsrfTokens(except: [
             'webhooks/stripe',
+            'webhooks/kkiapay',
         ]);
 
     })

@@ -1,38 +1,52 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 
-// ═══════════════════════════════════════════
-// ALPINE.JS — chargé depuis npm (pas CDN)
-// Font Awesome est chargé via CDN dans app.blade.php
-// NE PAS importer ici pour éviter le double chargement
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// CORRECTION : Font Awesome chargé via npm (pas CDN)
+// Le package @fortawesome/fontawesome-free est déjà dans
+// package.json → zéro requête CDN externe, meilleur CLS
+// ═══════════════════════════════════════════════════════
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
+// ═══════════════════════════════════════════════════════
+// CORRECTION : NProgress via npm (pas jsDelivr CDN)
+// npm install nprogress (si pas déjà présent)
+// ═══════════════════════════════════════════════════════
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
+
+// Configuration NProgress
+NProgress.configure({
+    showSpinner: false,
+    speed:       300,
+    minimum:     0.1,
+});
+
+// Démarrer NProgress à la navigation
+document.addEventListener('DOMContentLoaded', () => {
+    NProgress.done();
+});
+
+// ═══════════════════════════════════════════════════════
+// ALPINE.JS — chargé depuis npm
+// ═══════════════════════════════════════════════════════
 window.Alpine = Alpine;
 Alpine.start();
 
-// NProgress — terminé au chargement (fallback si DOMContentLoaded tardif)
-if (typeof NProgress !== 'undefined') {
-    NProgress.done();
-}
-
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // LOADER — masqué dès que la page est prête
-// Délai réduit de 1700ms → 400ms
-// Désactivé si prefers-reduced-motion
-// ═══════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════
 window.addEventListener('load', () => {
     const loader = document.getElementById('dt-loader');
-    if (!loader) return;
+    if (! loader) return;
 
     const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 400;
     setTimeout(() => loader.classList.add('out'), delay);
 }, { once: true });
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // SCROLL REVEAL — IntersectionObserver
-// ═══════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════
 const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -41,7 +55,7 @@ const revealObserver = new IntersectionObserver((entries) => {
         }
     });
 }, {
-    threshold: 0.08,
+    threshold:  0.08,
     rootMargin: '0px 0px -40px 0px',
 });
 
@@ -49,13 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.dt-reveal').forEach(el => revealObserver.observe(el));
 });
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // NAV SCROLL — classe scrolled sur la navbar
-// ═══════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
     const nav = document.getElementById('dt-nav');
-    if (!nav) return;
+    if (! nav) return;
 
     if (window.scrollY > 40) nav.classList.add('dt-nav--scrolled');
 
@@ -64,49 +77,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 });
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // WISHLIST — toggle favoris via fetch
-// ═══════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (e) => {
         const btn = e.target.closest('[data-wishlist-id]');
-        if (!btn || btn.dataset.loading) return;
+        if (! btn || btn.dataset.loading) return;
         e.preventDefault();
 
         btn.dataset.loading = '1';
         const icon = btn.querySelector('i');
 
-        // Feedback visuel immédiat
         btn.style.opacity = '0.6';
 
         try {
             const res = await fetch('/wishlist/toggle', {
-                method: 'POST',
+                method:      'POST',
                 headers: {
-                    'Content-Type':  'application/json',
-                    'X-CSRF-TOKEN':  document.querySelector('meta[name="csrf-token"]')?.content ?? '',
-                    'Accept':        'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    'Accept':       'application/json',
                 },
-                body: JSON.stringify({ offer_id: btn.dataset.wishlistId }),
+                body:        JSON.stringify({ offer_id: btn.dataset.wishlistId }),
                 credentials: 'same-origin',
             });
 
-            if (!res.ok) throw new Error('HTTP ' + res.status);
+            if (! res.ok) throw new Error('HTTP ' + res.status);
 
             const data = await res.json();
 
             if (icon) {
                 icon.classList.toggle('fas', data.wishlisted);
-                icon.classList.toggle('far', !data.wishlisted);
+                icon.classList.toggle('far', ! data.wishlisted);
             }
             btn.setAttribute('aria-pressed', data.wishlisted ? 'true' : 'false');
             btn.classList.toggle('is-active', data.wishlisted);
 
-            // Mettre à jour le badge nav wishlist
             const badge = document.querySelector('.dt-nav-wishlist-badge');
             if (badge && typeof data.count !== 'undefined') {
-                badge.textContent = data.count;
+                badge.textContent   = data.count;
                 badge.style.display = data.count > 0 ? '' : 'none';
             }
 
@@ -121,19 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ═══════════════════════════════════════════
-// MAGNETIC BUTTONS — effet hover premium
-// Désactivé sur mobile (pointer: coarse)
-// ═══════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════
+// MAGNETIC BUTTONS — effet hover premium (desktop only)
+// ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
     if (window.matchMedia('(pointer: coarse)').matches) return;
 
     document.querySelectorAll('.dt-btn-copper, .dt-btn-outline').forEach(btn => {
         btn.addEventListener('mousemove', (e) => {
             const rect = btn.getBoundingClientRect();
-            const x = (e.clientX - rect.left - rect.width  / 2) * 0.2;
-            const y = (e.clientY - rect.top  - rect.height / 2) * 0.2;
+            const x    = (e.clientX - rect.left - rect.width  / 2) * 0.2;
+            const y    = (e.clientY - rect.top  - rect.height / 2) * 0.2;
             btn.style.transform = `translate(${x}px, ${y}px)`;
         });
         btn.addEventListener('mouseleave', () => {
@@ -142,10 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // UTILITAIRES GLOBAUX
-// ═══════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════
 window.dtUtils = {
     observeReveal: () => {
         document.querySelectorAll('.dt-reveal:not(.dt-visible)').forEach(el => {

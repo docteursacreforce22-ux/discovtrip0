@@ -1,13 +1,14 @@
 FROM dunglas/frankenphp:php8.4-bookworm
 
-# Composer
+# ── Composer ─────────────────────────────────────────────────────────────────
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y nodejs
+# ── Node.js 20 LTS ───────────────────────────────────────────────────────────
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && node --version && npm --version
 
-# Extensions PHP — pdo_pgsql ajouté pour PostgreSQL
+# ── Extensions PHP ────────────────────────────────────────────────────────────
 RUN install-php-extensions \
     intl \
     zip \
@@ -20,39 +21,45 @@ RUN install-php-extensions \
     curl \
     bcmath
 
+# ── OPcache production ────────────────────────────────────────────────────────
+RUN { \
+    echo "opcache.enable=1"; \
+    echo "opcache.memory_consumption=256"; \
+    echo "opcache.max_accelerated_files=20000"; \
+    echo "opcache.validate_timestamps=0"; \
+    echo "opcache.jit_buffer_size=100M"; \
+    echo "opcache.jit=1255"; \
+} >> /usr/local/etc/php/conf.d/opcache.ini
+
 WORKDIR /app
 
-# Dépendances Composer
+# ── Layer cache Composer ──────────────────────────────────────────────────────
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
-# Dépendances Node
+# ── Layer cache Node ──────────────────────────────────────────────────────────
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Tout le projet
+# ── Copie du projet ───────────────────────────────────────────────────────────
 COPY . .
 
-# Build assets + structure dossiers
-# IMPORTANT : migrate retiré ici — PostgreSQL non disponible au build
-RUN npm run build \
-    && mkdir -p storage/framework/sessions \
-    && mkdir -p storage/framework/views \
-    && mkdir -p storage/framework/cache \
-    && mkdir -p storage/framework/testing \
-    && mkdir -p storage/logs \
-    && mkdir -p bootstrap/cache \
-    && chmod -R 777 storage bootstrap/cache
+# ── Build assets frontend ─────────────────────────────────────────────────────
+RUN npm run build
+
+# ── Permissions storage ───────────────────────────────────────────────────────
+RUN mkdir -p storage/framework/sessions \
+             storage/framework/views \
+             storage/framework/cache \
+             storage/framework/testing \
+             storage/logs \
+             bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 8080
 
-# Migrate au runtime — PostgreSQL disponible ici
-CMD echo "=== DEBUT ===" \
-    && php artisan migrate --force || true \
-    && php artisan filament:upgrade || true \
-    && php artisan optimize:clear || true \
-    && php artisan storage:link --force || true \
-    && php artisan vendor:publish --tag=livewire:assets --force || true \
-    && php artisan admin:create || true \
-    && echo "=== DEMARRAGE ===" \
-    && php artisan serve --host=0.0.0.0 --port=8080
+# ── Démarrage via start.sh (migrations, caches, serve) ───────────────────────
+# NOTE : optimize:clear SUPPRIMÉ — il détruisait les caches buildés ci-dessus
+# NOTE : admin:create DÉPLACÉ dans start.sh (une seule fois au boot, pas au build)
+CMD ["bash", "start.sh"]

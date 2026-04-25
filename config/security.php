@@ -1,233 +1,134 @@
 <?php
 
-return [
-    /*
-    |--------------------------------------------------------------------------
-    | Security Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configuration centralisée de toutes les options de sécurité.
-    |
-    */
+/**
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * config/security.php — DiscovTrip
+ * Configuration sécurité corrigée : CSP élargie pour tous les CDN légitimes
+ * ═══════════════════════════════════════════════════════════════════════════════
+ */
 
-    // ═══════════════════════════════════════════════════════════════════════
+return [
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // CONTENT SECURITY POLICY (CSP)
-    // ═══════════════════════════════════════════════════════════════════════
-    
+    // ═══════════════════════════════════════════════════════════════════════════
     'csp' => [
         'enabled' => env('SECURITY_CSP_ENABLED', true),
-        
+
         'directives' => [
+
+            // Sources par défaut
             "default-src" => ["'self'"],
+
+            // Scripts autorisés
             "script-src" => [
                 "'self'",
-                env('APP_ENV') === 'local' ? "'unsafe-inline'" : "",
-                "https://cdnjs.cloudflare.com",
-                "https://cdn.jsdelivr.net",
+                "'unsafe-inline'",                   // Alpine.js + NProgress inline
+                "https://cdnjs.cloudflare.com",      // Font Awesome JS (si besoin)
+                "https://cdn.jsdelivr.net",           // NProgress
+                "https://js.stripe.com",              // Stripe.js
+                "https://widget.kkiapay.me",          // KKiaPay widget
+                "https://cdn.kkiapay.me",             // KKiaPay SDK
             ],
+
+            // Styles autorisés
             "style-src" => [
                 "'self'",
-                "'unsafe-inline'", // Nécessaire pour certains frameworks CSS
-                "https://fonts.googleapis.com",
+                "'unsafe-inline'",                   // Styles inline Blade
+                "https://fonts.googleapis.com",       // Google Fonts
+                "https://cdnjs.cloudflare.com",      // ← Font Awesome CSS (AJOUTÉ)
+                "https://cdn.jsdelivr.net",           // ← NProgress CSS (AJOUTÉ)
             ],
+
+            // Images — permissif (Cloudinary, assets, favicons, data URIs)
             "img-src" => [
                 "'self'",
                 "data:",
-                "https:",
                 "blob:",
+                "https:",
             ],
+
+            // Fonts — Google Fonts + Font Awesome woff2 (AJOUTÉ)
             "font-src" => [
                 "'self'",
                 "data:",
                 "https://fonts.gstatic.com",
+                "https://cdnjs.cloudflare.com",      // ← Font Awesome .woff2 (AJOUTÉ)
             ],
+
+            // Connexions XHR / fetch / WebSocket
             "connect-src" => [
                 "'self'",
-                env('APP_URL'),
-                env('FRONTEND_URL'),
+                "https://api.stripe.com",
+                "https://api.groq.com",              // Chatbot DiscovGuide
+                "https://sandbox.api.kkiapay.me",
+                "https://api.kkiapay.me",
             ],
+
+            // Iframes autorisées
+            "frame-src" => [
+                "https://js.stripe.com",
+                "https://widget.kkiapay.me",
+                "https://www.youtube.com",           // Vidéos offres
+                "https://player.vimeo.com",
+            ],
+
+            // Anti-clickjacking
             "frame-ancestors" => ["'none'"],
+
+            // Base URL
             "base-uri" => ["'self'"],
+
+            // Soumissions de formulaires
             "form-action" => ["'self'"],
+
+            // Force HTTPS pour toutes les ressources embarquées
             "upgrade-insecure-requests" => [],
         ],
     ],
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // HTTP STRICT TRANSPORT SECURITY (HSTS)
-    // ═══════════════════════════════════════════════════════════════════════
-    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // HSTS
+    // ═══════════════════════════════════════════════════════════════════════════
     'hsts' => [
-        'enabled' => env('SECURITY_HSTS_ENABLED', true),
-        'max_age' => env('SECURITY_HSTS_MAX_AGE', 31536000), // 1 an
+        'enabled'            => env('SECURITY_HSTS_ENABLED', true),
+        'max_age'            => env('SECURITY_HSTS_MAX_AGE', 31536000),
         'include_subdomains' => env('SECURITY_HSTS_SUBDOMAINS', true),
-        'preload' => env('SECURITY_HSTS_PRELOAD', false),
+        'preload'            => env('SECURITY_HSTS_PRELOAD', false),
     ],
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // CSRF PROTECTION
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    'csrf' => [
-        'enabled' => env('SECURITY_CSRF_ENABLED', true),
-        
-        // Chemins exemptés de vérification CSRF
-        'exempt' => [
-            'api/*', // API utilise JWT, pas de CSRF
-            'webhooks/*',
-        ],
-        
-        // Durée de vie token CSRF (minutes)
-        'lifetime' => 120,
+    // ═══════════════════════════════════════════════════════════════════════════
+    // RATE LIMITING
+    // ═══════════════════════════════════════════════════════════════════════════
+    'rate_limiting' => [
+        'enabled'       => env('RATE_LIMITING_ENABLED', true),
+        'max_attempts'  => env('RATE_LIMIT_MAX', 60),
+        'decay_minutes' => env('RATE_LIMIT_DECAY', 1),
     ],
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // PASSWORD POLICY
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    'password' => [
-        'min_length' => env('PASSWORD_MIN_LENGTH', 12),
-        'require_uppercase' => env('PASSWORD_REQUIRE_UPPERCASE', true),
-        'require_lowercase' => env('PASSWORD_REQUIRE_LOWERCASE', true),
-        'require_numbers' => env('PASSWORD_REQUIRE_NUMBERS', true),
-        'require_special' => env('PASSWORD_REQUIRE_SPECIAL', true),
-        'max_age_days' => env('PASSWORD_MAX_AGE_DAYS', null), // null = pas d'expiration
-        'prevent_reuse' => env('PASSWORD_PREVENT_REUSE', 3), // Derniers N passwords
-    ],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // ACCOUNT LOCKING
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    'account_locking' => [
-        'enabled' => env('SECURITY_ACCOUNT_LOCKING_ENABLED', true),
-        'max_attempts' => env('SECURITY_MAX_LOGIN_ATTEMPTS', 5),
-        'lockout_duration' => env('SECURITY_LOCKOUT_DURATION', 30), // minutes
-        'progressive_lockout' => true, // Durée augmente à chaque tentative
-    ],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // SESSION SECURITY
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    'session' => [
-        'secure_cookies' => env('SESSION_SECURE_COOKIE', true),
-        'http_only_cookies' => true,
-        'same_site_cookies' => 'lax', // lax, strict, none
-        'max_sessions_per_user' => env('MAX_SESSIONS_PER_USER', 5),
-        'absolute_timeout' => env('SESSION_ABSOLUTE_TIMEOUT', 480), // 8 heures
-        'idle_timeout' => env('SESSION_IDLE_TIMEOUT', 120), // 2 heures
-    ],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // FILE UPLOAD SECURITY
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    'upload' => [
-        'max_file_size' => env('UPLOAD_MAX_FILE_SIZE', 20 * 1024 * 1024), // 20 MB
-        'allowed_extensions' => [
-            // Images
-            'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
-            // Documents
-            'pdf', 'doc', 'docx', 'xls', 'xlsx',
-            // Autres
-            'txt', 'csv',
-        ],
-        'allowed_mimetypes' => [
-            'image/jpeg',
-            'image/png',
-            'image/gif',
-            'image/webp',
-            'application/pdf',
-            'text/plain',
-            'text/csv',
-        ],
-        'scan_for_viruses' => env('UPLOAD_VIRUS_SCAN', false),
-        'check_image_dimensions' => true,
-        'max_image_width' => 4096,
-        'max_image_height' => 4096,
-    ],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // IP WHITELISTING / BLACKLISTING
-    // ═══════════════════════════════════════════════════════════════════════
-    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // IP FILTERING
+    // ═══════════════════════════════════════════════════════════════════════════
     'ip_filtering' => [
-        'enabled' => env('SECURITY_IP_FILTERING_ENABLED', false),
-        
-        // IPs autorisées (whitelist) - si défini, seules ces IPs peuvent accéder
-        'whitelist' => env('SECURITY_IP_WHITELIST') 
-            ? explode(',', env('SECURITY_IP_WHITELIST'))
-            : [],
-        
-        // IPs bloquées (blacklist)
-        'blacklist' => env('SECURITY_IP_BLACKLIST')
-            ? explode(',', env('SECURITY_IP_BLACKLIST'))
-            : [],
-        
-        // Chemins exemptés de filtrage IP
-        'exempt_paths' => [
-            'api/health',
+        'enabled'         => env('IP_FILTERING_ENABLED', false),
+        'blacklisted_ips' => [],
+    ],
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // API
+    // ═══════════════════════════════════════════════════════════════════════════
+    'api' => [
+        'force_https'   => env('FORCE_HTTPS', true),
+        'allowed_hosts' => explode(',', env('ALLOWED_HOSTS', '')),
+    ],
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // CSRF EXEMPTIONS
+    // ═══════════════════════════════════════════════════════════════════════════
+    'csrf' => [
+        'exempt' => [
+            'api/*',
             'webhooks/*',
         ],
     ],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // API SECURITY
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    'api' => [
-        // Exiger HTTPS en production
-        'force_https' => env('API_FORCE_HTTPS', env('APP_ENV') === 'production'),
-        
-        // JWT
-        'jwt_secret' => env('JWT_SECRET'),
-        'jwt_ttl' => env('JWT_TTL', 60), // minutes
-        'jwt_refresh_ttl' => env('JWT_REFRESH_TTL', 20160), // 2 semaines
-        
-        // API Keys (optionnel)
-        'require_api_key' => env('API_REQUIRE_KEY', false),
-        'api_key_header' => 'X-API-Key',
-    ],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // LOGGING & MONITORING
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    'logging' => [
-        // Logger toutes les tentatives de login échouées
-        'log_failed_logins' => true,
-        
-        // Logger les tentatives XSS/SQL injection
-        'log_security_violations' => true,
-        
-        // Logger les accès admin
-        'log_admin_actions' => true,
-        
-        // Logger les changements de données sensibles
-        'log_sensitive_changes' => true,
-    ],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // TWO-FACTOR AUTHENTICATION
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    '2fa' => [
-        'enabled' => env('2FA_ENABLED', true),
-        'required_for_roles' => ['admin', 'moderator'],
-        'recovery_codes_count' => 8,
-        'totp_window' => 1, // ±30 secondes
-    ],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // TRUSTED PROXIES
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    'proxies' => [
-        'trust_all' => env('TRUST_PROXIES', false),
-        'proxies' => env('TRUSTED_PROXIES') 
-            ? explode(',', env('TRUSTED_PROXIES'))
-            : [],
-    ],
-
 ];

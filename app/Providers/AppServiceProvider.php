@@ -20,19 +20,25 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // ── HTTPS forcé en production ─────────────────────────────────────
+        // CORRECTION : URL::forceRootUrl() SUPPRIMÉ — il forçait toutes les
+        // URLs (y compris les assets Vite) vers l'APP_URL, ce qui causait des
+        // 404 sur les CSS/JS si APP_URL ne correspondait pas exactement au
+        // domaine Railway. forceScheme('https') suffit pour Railway.
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
-            URL::forceRootUrl(config('app.url'));
         }
 
+        // ── Composants anonymes emails ────────────────────────────────────
         Blade::anonymousComponentPath(
             resource_path('views/emails'),
             'emails'
         );
 
+        // ── Observer médias offres ────────────────────────────────────────
         Offer::observe(OfferObserver::class);
 
-        // Directive Blade @heroImage('key', 'fallback')
+        // ── Directive Blade @heroImage('key', 'fallback') ─────────────────
         Blade::directive('heroImage', function (string $expression) {
             return "<?php echo App\\Providers\\AppServiceProvider::heroImage({$expression}); ?>";
         });

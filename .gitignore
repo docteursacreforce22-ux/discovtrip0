@@ -1,8 +1,7 @@
 *.log
 .DS_Store
 .env
-.env.backup
-.env.production
+.env.*
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -25,18 +24,21 @@ Thumbs.db
 .env.herd
 .env.xampp
 
-# Données sensibles — ne jamais committer
-/storage/framework/sessions
-/storage/framework/cache
-/storage/framework/views
-/storage/app/private
-/storage/app/livewire-tmp
-/storage/cache
+# ── DONNÉES RUNTIME — NE JAMAIS COMMITTER ────────────────────────────────
+/storage/framework/sessions/
+/storage/framework/cache/
+/storage/framework/views/
+/storage/framework/testing/
+/storage/cache/
+/storage/app/private/
+/storage/app/livewire-tmp/
+/storage/logs/
 
-# SQLite local — Railway utilise un volume persistant
+# ── CACHE LARAVEL COMPILÉ ─────────────────────────────────────────────────
+# Contient des chemins absolus locaux + secrets résolus depuis .env
+/bootstrap/cache/
+
+# ── BASE DE DONNÉES LOCALE ────────────────────────────────────────────────
 /database/*.sqlite
 /database/*.sqlite-shm
 /database/*.sqlite-wal
-.env*
-
-database/*.sqlite

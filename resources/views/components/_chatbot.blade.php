@@ -99,14 +99,9 @@
 <script>
 (function() {
     // ── Config ─────────────────────────────────────────────
-    const GROQ_API_KEY  = '{{ config('services.groq.api_key') }}';
-    const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
-    const SYSTEM_PROMPT = "Tu es DiscovGuide, assistant IA de DiscovTrip, plateforme de voyage au Bénin (Afrique de l'Ouest). "
-        + "Réponds en français, chaleureusement, en 2-3 phrases maximum. "
-        + "Tu aides les visiteurs à découvrir le Bénin : destinations (Cotonou, Porto-Novo, Ouidah, Abomey, Ganvié, Natitingou...), "
-        + "expériences culturelles, nature, gastronomie, vaudou, histoire du Dahomey. "
-        + "Infos pratiques : visa à l'arrivée (50 USD), monnaie FCFA (1 EUR = 655 FCFA), meilleure période novembre-mars. "
-        + "Si la question ne concerne pas le Bénin ou le voyage, redirige poliment vers DiscovTrip.";
+    // Appel via le backend Laravel (sécurisé — la clé Groq n'est pas exposée)
+    const CHAT_ENDPOINT = '{{ route('chatbot.chat') }}';
+    const CSRF_TOKEN    = '{{ csrf_token() }}';
 
     // ── Éléments ───────────────────────────────────────────
     const trigger  = document.getElementById('chatbot-trigger');
@@ -196,42 +191,48 @@
         isTyping = true;
 
         try {
-            const res = await fetch(GROQ_ENDPOINT, {
+            // Appel au backend Laravel — la clé Groq reste côté serveur
+            const res = await fetch(CHAT_ENDPOINT, {
                 method: 'POST',
                 headers: {
-                    'Authorization': 'Bearer ' + GROQ_API_KEY,
                     'Content-Type':  'application/json',
+                    'Accept':        'application/json',
+                    'X-CSRF-TOKEN':  CSRF_TOKEN,
                 },
                 body: JSON.stringify({
-                    model:       'llama-3.1-8b-instant',
-                    max_tokens:  300,
-                    temperature: 0.7,
-                    messages: [
-                        { role: 'system', content: SYSTEM_PROMPT },
-                        ...conversation.slice(-6)
-                    ],
+                    messages: conversation.slice(-8),
                 }),
             });
 
             typingEl.remove();
             isTyping = false;
 
+            if (res.status === 429) {
+                appendMessage('assistant', '⏳ Trop de messages. Patientez un instant avant de réessayer.');
+                return;
+            }
+
+            if (res.status === 503) {
+                appendMessage('assistant', '⚠️ Le chatbot est temporairement indisponible. Contactez-nous via WhatsApp !');
+                return;
+            }
+
             if (!res.ok) {
-                appendMessage('assistant', '⚠️ Erreur ' + res.status + '. Réessayez.');
+                appendMessage('assistant', '⚠️ Erreur ' + res.status + '. Réessayez dans un instant.');
                 return;
             }
 
             const data    = await res.json();
-            const content = data.choices?.[0]?.message?.content ?? 'Réessayez dans un instant.';
-            appendMessage('assistant', content);
-            conversation.push({ role: 'assistant', content });
+            const reply   = data.message ?? 'Réessayez dans un instant.';
+            appendMessage('assistant', reply);
+            conversation.push({ role: 'assistant', content: reply });
 
             if (!isOpen) { badge.style.display = 'flex'; }
 
         } catch(e) {
             typingEl.remove();
             isTyping = false;
-            appendMessage('assistant', '⚠️ Connexion impossible. Vérifiez votre réseau.');
+            appendMessage('assistant', '⚠️ Connexion impossible. Vérifiez votre réseau et réessayez.');
         }
     }
 

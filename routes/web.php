@@ -48,9 +48,6 @@ Route::post('/contact', [ContactController::class, 'send'])
      ->middleware('throttle:5,1');
 
 // ── Pages légales ─────────────────────────────────────
-// CORRECTION : le groupe Route::prefix('legal') a été supprimé.
-// Il créait 3 doublons de noms de routes (privacy, cancellation, faq).
-// Les anciennes URLs /legal/* sont redirigées en 301 pour préserver le SEO.
 Route::redirect('/legal/terms',        '/conditions-utilisation', 301);
 Route::redirect('/legal/privacy',      '/confidentialite', 301);
 Route::redirect('/legal/cookies',      '/confidentialite', 301);
@@ -60,8 +57,6 @@ Route::get('/conditions-utilisation', [CguController::class, 'show'])->name('cgu
 Route::get('/confidentialite',        [PrivacyController::class, 'show'])->name('privacy');
 Route::get('/annulation-gratuite',    [CancellationController::class, 'show'])->name('cancellation');
 
-// ── FAQ — CORRECTION : Route::view() doublon supprimé ─
-// FaqController::show() est la version correcte (données dynamiques).
 Route::get('/faq', [FaqController::class, 'show'])->name('faq');
 
 // ── Blog ───────────────────────────────────────────────
@@ -72,12 +67,10 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 // RÉSERVATIONS — PUBLIQUES
 // ══════════════════════════════════════════════════════
 
-// CORRECTION : throttle:10,1 ajouté — protège contre les fausses réservations
 Route::post('/bookings', [BookingController::class, 'store'])
      ->name('bookings.store')
      ->middleware('throttle:10,1');
 
-// Suivi + PDF — le contrôleur gère lui-même la vérification d'accès
 Route::get('/bookings/{reference}',     [BookingController::class, 'show'])->name('bookings.show');
 Route::get('/bookings/{reference}/pdf', [BookingController::class, 'pdf'])->name('bookings.pdf');
 
@@ -95,46 +88,50 @@ Route::middleware(['auth', EnsureUserIsNotBanned::class])
 // ══════════════════════════════════════════════════════
 
 Route::prefix('payment')->name('payment.')->group(function () {
-    // Page récapitulatif / sélection paiement
     Route::get('/{reference}', [PaymentController::class, 'show'])->name('show');
-
-    // KKiaPay — callback navigateur après paiement
     Route::get('/{reference}/kkiapay/callback', [PaymentController::class, 'callbackKkiapay'])
          ->name('kkiapay.callback');
-
-    // Paiement sur place — confirmation sans paiement en ligne
     Route::post('/{reference}/on-site', [PaymentController::class, 'confirmOnSite'])
          ->name('on_site.confirm');
 });
 
-// Webhook KKiaPay — notification serveur asynchrone (exclu CSRF)
+// Webhook KKiaPay — CSRF exclu dans bootstrap/app.php
 Route::post('/webhooks/kkiapay', [PaymentController::class, 'webhookKkiapay'])
      ->name('webhooks.kkiapay');
 
 // ══════════════════════════════════════════════════════
-// CHATBOT & WEBHOOKS
+// CHATBOT
 // ══════════════════════════════════════════════════════
 
 Route::post('/chatbot', [ChatbotController::class, 'chat'])
      ->name('chatbot.chat')
      ->middleware('throttle:30,1');
 
-
-
 // ══════════════════════════════════════════════════════
-// AUTH (visiteurs non connectés seulement)
+// AUTH — CORRECTION : throttle ajouté sur login/register
+// Protège contre le brute-force (5 tentatives / minute)
 // ══════════════════════════════════════════════════════
 
 Route::middleware('guest')->group(function () {
-    Route::get('/connexion',    [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/connexion',   [AuthController::class, 'login'])->name('login.store');
+    Route::get('/connexion',  [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/connexion', [AuthController::class, 'login'])
+         ->name('login.store')
+         ->middleware('throttle:5,1');   // ← AJOUT : anti brute-force
+
     Route::get('/inscription',  [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/inscription', [AuthController::class, 'register'])->name('register.store');
+    Route::post('/inscription', [AuthController::class, 'register'])
+         ->name('register.store')
+         ->middleware('throttle:10,5');  // ← AJOUT : anti spam inscription
 
     Route::get('/password/reset',         [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
-    Route::post('/password/email',        [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::post('/password/email',        [AuthController::class, 'sendResetLinkEmail'])
+         ->name('password.email')
+         ->middleware('throttle:3,1');   // ← AJOUT : anti spam reset email
+
     Route::get('/password/reset/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
-    Route::post('/password/reset',        [AuthController::class, 'resetPassword'])->name('password.reset.update');
+    Route::post('/password/reset',        [AuthController::class, 'resetPassword'])
+         ->name('password.reset.update')
+         ->middleware('throttle:3,1');   // ← AJOUT
 });
 
 Route::post('/deconnexion', [AuthController::class, 'logout'])->name('logout');
@@ -162,7 +159,6 @@ Route::middleware(['auth', EnsureUserIsNotBanned::class])
               ->name('delete')
               ->middleware('throttle:3,1');
      });
-
 
 // ══════════════════════════════════════════════════════
 // WISHLIST

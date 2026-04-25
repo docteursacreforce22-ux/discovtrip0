@@ -25,10 +25,37 @@
    17. Media Queries
 ══════════════════════════════════════════════════════════════════ */
 
-/* ──────────────────────────────────────────────────────────────────
-   FIX : home.css est chargé par Vite via @vite() dans home.blade.php
-   → PAS d'@import ici pour éviter le double chargement
-   ────────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   IMPORTS DES CSS DE PAGES — CORRECTION
+   Tous les CSS de pages importés ici → 1 seule requête HTTP
+   au lieu de 26 entrées séparées dans vite.config.js.
+   Dans chaque blade, supprimer les @vite(['resources/css/pages/xxx.css'])
+   séparés — ils sont désormais inclus dans ce bundle global.
+══════════════════════════════════════════════════════════════════ */
+
+@import './pages/home.css';
+@import './pages/about.css';
+@import './pages/legal.css';
+@import './pages/faq.css';
+@import './pages/contact.css';
+@import './pages/destinations.css';
+@import './pages/city.css';
+@import './pages/country.css';
+@import './pages/offers/index.css';
+@import './pages/offers/show.css';
+@import './pages/auth/auth.css';
+@import './pages/blog/index.css';
+@import './pages/blog/show.css';
+@import './pages/bookings/create.css';
+@import './pages/bookings/index.css';
+@import './pages/bookings/show.css';
+@import './pages/bookings/payment.css';
+@import './pages/account/dashboard.css';
+@import './pages/account/layout.css';
+@import './pages/account/bookings.css';
+@import './pages/account/profile.css';
+@import './pages/account/security.css';
+@import './pages/account/wishlist.css';
 
 /* ══════════════════════════════════════════════════════════════════
    01. DESIGN TOKENS

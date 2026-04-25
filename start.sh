@@ -1,42 +1,76 @@
 #!/bin/bash
-# start.sh — Script de démarrage Railway pour DiscovTrip
-# Placé à la racine du projet
-
+# ═══════════════════════════════════════════════════════════════════════════
+# start.sh — Script de démarrage Railway — DiscovTrip (version corrigée)
+# ═══════════════════════════════════════════════════════════════════════════
 set -e
 
-echo "🚀 DiscovTrip — démarrage Railway..."
+PORT="${PORT:-8080}"
+APP_ENV="${APP_ENV:-production}"
 
-# ── 1. Créer le fichier SQLite s'il n'existe pas ──
-DB_PATH="${DB_DATABASE:-/app/database/database.sqlite}"
-if [ ! -f "$DB_PATH" ]; then
-    echo "📦 Création de la base SQLite : $DB_PATH"
-    mkdir -p "$(dirname "$DB_PATH")"
-    touch "$DB_PATH"
+echo ""
+echo "╔══════════════════════════════════════════╗"
+echo "║     🌍 DiscovTrip — Démarrage Railway    ║"
+echo "╚══════════════════════════════════════════╝"
+echo "  PORT     : $PORT"
+echo "  ENV      : $APP_ENV"
+echo "  APP_URL  : ${APP_URL:-⚠️ NON DÉFINI}"
+echo "  DB       : ${DB_CONNECTION:-sqlite}"
+echo ""
+
+# ── 1. Base de données SQLite (si driver = sqlite) ────────────────────────
+if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
+    DB_PATH="${DB_DATABASE:-/app/database/database.sqlite}"
+    if [ ! -f "$DB_PATH" ]; then
+        echo "📦 Création SQLite : $DB_PATH"
+        mkdir -p "$(dirname "$DB_PATH")"
+        touch "$DB_PATH"
+    fi
 fi
 
-# ── 2. Migrations ──────────────────────────────────
-echo "🗄️  Migrations..."
-if ! php artisan migrate --force --no-interaction; then
-    echo "⚠️  Migration error — tentative avec --pretend pour diagnostiquer..."
-    php artisan migrate --pretend --force 2>&1 | head -40 || true
-    echo "❌ Migration échouée. Vérifier les logs ci-dessus."
+# ── 2. Vérification des assets compilés ──────────────────────────────────
+if [ ! -f "public/build/manifest.json" ]; then
+    echo "⚠️  public/build/manifest.json absent — rebuild en cours..."
+    npm ci --silent && npm run build
+    echo "✅ Assets reconstruits."
+else
+    echo "✅ Assets OK (manifest.json présent)"
+fi
+
+# ── 3. Storage link ───────────────────────────────────────────────────────
+echo "🔗 Storage link..."
+php artisan storage:link --force 2>/dev/null || true
+
+# ── 4. Migrations ─────────────────────────────────────────────────────────
+echo "🗄️  Migrations en cours..."
+if php artisan migrate --force --no-interaction; then
+    echo "✅ Migrations OK"
+else
+    echo "❌ ERREUR MIGRATION — Affichage du pretend pour debug :"
+    php artisan migrate --pretend --force 2>&1 | head -50 || true
     exit 1
 fi
 
-# ── 3. Storage link ────────────────────────────────
-echo "🔗 Storage link..."
-php artisan storage:link 2>/dev/null || true
+# ── 5. Création du compte admin (idempotent) ──────────────────────────────
+if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
+    echo "👤 Vérification compte admin..."
+    php artisan admin:create 2>/dev/null && echo "✅ Admin OK" || echo "ℹ️  Admin déjà existant ou ignoré"
+fi
 
-# ── 4. Caches production ───────────────────────────
-echo "⚡ Caches..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# ── 6. Caches production ──────────────────────────────────────────────────
+# IMPORTANT : NE PAS faire optimize:clear ici — les caches du build Docker sont déjà bons
+echo "⚡ Régénération caches..."
+php artisan config:cache  2>/dev/null && echo "  ✅ config" || echo "  ⚠️  config:cache échoué (non bloquant)"
+php artisan route:cache   2>/dev/null && echo "  ✅ routes" || echo "  ⚠️  route:cache échoué (non bloquant)"
+php artisan view:cache    2>/dev/null && echo "  ✅ vues"   || echo "  ⚠️  view:cache échoué (non bloquant)"
 
-# ── 5. Permissions ────────────────────────────────
+# ── 7. Permissions finales ────────────────────────────────────────────────
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
-echo "✅ Prêt. Démarrage du serveur sur port ${PORT:-8080}..."
+# ── 8. Démarrage serveur ──────────────────────────────────────────────────
+echo ""
+echo "╔══════════════════════════════════════════╗"
+echo "║  🚀 Serveur démarré sur le port $PORT    ║"
+echo "╚══════════════════════════════════════════╝"
+echo ""
 
-# ── 6. Démarrage ──────────────────────────────────
-exec php artisan serve --host=0.0.0.0 --port="${PORT:-8080}"
+exec php artisan serve --host=0.0.0.0 --port="$PORT"

@@ -1,8 +1,46 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Variables d'environnement — JAMAIS dans l'image
 .env
 .env.*
+!.env.example
+
+# Dépendances locales (reconstruites dans le Dockerfile)
 node_modules
-.git
-storage/logs
-storage/framework/views
-storage/framework/cache
+vendor
+
+# Données runtime (éphémères, créées au démarrage)
 storage/framework/sessions
+storage/framework/cache
+storage/framework/views
+storage/framework/testing
+storage/cache
+storage/app/private
+storage/app/livewire-tmp
+storage/logs
+
+# Cache compilé local (recréé dans le Dockerfile)
+bootstrap/cache
+
+# Base locale
+database/*.sqlite
+database/*.sqlite-shm
+database/*.sqlite-wal
+
+# Assets compilés locaux (reconstruits dans le Dockerfile via npm run build)
+public/build
+public/hot
+
+# Dev tools
+.vscode
+.idea
+.phpunit.cache
+.phpunit.result.cache
+phpunit.xml
+
+# OS
+.DS_Store
+Thumbs.db
